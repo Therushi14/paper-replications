@@ -211,7 +211,8 @@ class GPT3(nn.Module):
         # Weight initialization
         self.apply(self._init_weights)
         
-        # Tie weights between token embeddings and output layer
+        # Tie weights between token embeddings and output layer (after initialization)
+        # This reduces parameters and is standard practice in language models
         self.lm_head.weight = self.token_embedding.weight
         
     def _init_weights(self, module):
@@ -285,10 +286,11 @@ class GPT3(nn.Module):
         loss = None
         if targets is not None:
             # Flatten the logits and targets for cross-entropy loss
+            # Note: Use ignore_index=-1 if your dataset marks padding tokens with -1
             loss = F.cross_entropy(
                 logits.view(-1, self.vocab_size),
                 targets.view(-1),
-                ignore_index=-1  # Ignore padding tokens
+                ignore_index=-1  # Ignore padding tokens (if marked with -1)
             )
         
         if loss is not None:
@@ -433,7 +435,8 @@ def get_gpt3_config(model_size='small'):
     }
     
     if model_size not in configs:
-        raise ValueError(f"Unknown model size: {model_size}. Choose from {list(configs.keys())}")
+        available = ', '.join(sorted(configs.keys()))
+        raise ValueError(f"Unknown model size: {model_size}. Available sizes: {available}")
     
     return configs[model_size]
 

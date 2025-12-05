@@ -86,7 +86,8 @@ def test_attention_mask():
     model = GPT3(**config)
     
     seq_len = 8
-    mask = model.create_causal_mask(seq_len, torch.device('cpu'))
+    device = torch.device('cpu')
+    mask = model.create_causal_mask(seq_len, device)
     
     # Check mask is lower triangular
     expected_mask = torch.tril(torch.ones(seq_len, seq_len))
